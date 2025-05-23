@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Header } from "../components/header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
-import { TwitterLogoIcon, GitHubLogoIcon } from "@radix-ui/react-icons";
+import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { AnimalBackground } from "../components/AnimalBackground";
 
 export default function Home() {

@@ -35,7 +35,7 @@ function Animal({ position, rotation, scale, speed, path, delay = 0 }: AnimalPro
     return () => clearTimeout(timer)
   }, [actions, delay])
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (!group.current || !started) return
 
     // 横方向に移動
@@ -49,7 +49,7 @@ function Animal({ position, rotation, scale, speed, path, delay = 0 }: AnimalPro
     }
     
     // 少しだけ上下に揺らす（かわいさアップ）
-    group.current.position.y += Math.sin(state.clock.elapsedTime * 2) * 0.01
+    group.current.position.y += Math.sin(Date.now() * 0.001) * 0.01
   })
 
   return (
@@ -103,148 +103,6 @@ function Clouds() {
       <CustomCloud position={[5, 1, -6]} size={2.2} />
       <CustomCloud position={[-12, 0, -10]} size={3.2} />
     </>
-  )
-}
-
-// パーティクルの型定義
-interface ParticlePosition {
-  x: number;
-  y: number;
-  z: number;
-  size: number;
-  speed: number;
-}
-
-// パーティクルエフェクト
-function Particles({ count = 100 }: { count?: number }) {
-  const mesh = useRef<THREE.Group>(null)
-  const [positions, setPositions] = useState<ParticlePosition[]>([])
-
-  useEffect(() => {
-    const newPositions: ParticlePosition[] = []
-    for (let i = 0; i < count; i++) {
-      newPositions.push({
-        x: Math.random() * 30 - 15,
-        y: Math.random() * 10 - 5,
-        z: Math.random() * 10 - 5,
-        size: Math.random() * 0.2 + 0.1,
-        speed: Math.random() * 0.2 + 0.05
-      })
-    }
-    setPositions(newPositions)
-  }, [count])
-
-  useFrame((state) => {
-    if (!mesh.current) return
-    mesh.current.rotation.y += 0.001
-    
-    // 子要素を動かす
-    mesh.current.children.forEach((child, i) => {
-      const pos = positions[i]
-      if (pos) {
-        child.position.y += Math.sin(state.clock.elapsedTime + i) * 0.01
-        child.position.x += pos.speed * 0.01
-        if (child.position.x > 15) child.position.x = -15
-      }
-    })
-  })
-
-  return (
-    <group ref={mesh}>
-      {positions.map((pos, i) => (
-        <mesh key={i} position={[pos.x, pos.y, pos.z]}>
-          <sphereGeometry args={[pos.size, 8, 8]} />
-          <meshBasicMaterial color="#ffaacc" transparent opacity={0.6} />
-        </mesh>
-      ))}
-    </group>
-  )
-}
-
-// ハートの型定義
-interface HeartProps {
-  x: number;
-  y: number;
-  z: number;
-  scale: number;
-  speed: number;
-  rotSpeed: number;
-}
-
-// ハート型のパーティクル
-function Hearts({ count = 20 }: { count?: number }) {
-  const mesh = useRef<THREE.Group>(null)
-  const [hearts, setHearts] = useState<HeartProps[]>([])
-  
-  useEffect(() => {
-    const newHearts: HeartProps[] = []
-    for (let i = 0; i < count; i++) {
-      newHearts.push({
-        x: Math.random() * 30 - 15,
-        y: Math.random() * 10,
-        z: Math.random() * 10 - 5,
-        scale: Math.random() * 0.3 + 0.1,
-        speed: Math.random() * 0.2 + 0.1,
-        rotSpeed: Math.random() * 0.02 - 0.01
-      })
-    }
-    setHearts(newHearts)
-  }, [count])
-  
-  useFrame((state) => {
-    if (!mesh.current) return
-    
-    mesh.current.children.forEach((child, i) => {
-      const heart = hearts[i]
-      if (heart) {
-        // 上昇させる
-        child.position.y += heart.speed * 0.05
-        // 回転させる
-        child.rotation.z += heart.rotSpeed
-        
-        // 上に行きすぎたら下に戻す
-        if (child.position.y > 10) {
-          child.position.y = -2
-          child.position.x = Math.random() * 30 - 15
-        }
-      }
-    })
-  })
-  
-  // ハートの形を作る関数
-  const createHeartShape = () => {
-    const shape = new THREE.Shape()
-    const x = 0, y = 0
-    
-    shape.moveTo(x, y + 0.25)
-    shape.bezierCurveTo(x, y + 0.25, x - 0.25, y, x - 0.25, y - 0.25)
-    shape.bezierCurveTo(x - 0.25, y - 0.5, x, y - 0.5, x, y - 0.5)
-    shape.bezierCurveTo(x, y - 0.5, x + 0.25, y - 0.5, x + 0.25, y - 0.25)
-    shape.bezierCurveTo(x + 0.25, y, x, y + 0.25, x, y + 0.25)
-    
-    return shape
-  }
-  
-  return (
-    <group ref={mesh}>
-      {hearts.map((heart, i) => (
-        <mesh key={i} position={[heart.x, heart.y, heart.z]}>
-          <extrudeGeometry 
-            args={[
-              createHeartShape(),
-              {
-                depth: 0.1,
-                bevelEnabled: true,
-                bevelThickness: 0.03,
-                bevelSize: 0.02,
-                bevelSegments: 2
-              }
-            ]} 
-          />
-          <meshStandardMaterial color="#ff69b4" roughness={0.3} metalness={0.2} />
-        </mesh>
-      ))}
-    </group>
   )
 }
 
